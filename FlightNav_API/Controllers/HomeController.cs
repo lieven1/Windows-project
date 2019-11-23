@@ -15,9 +15,14 @@ namespace FlightNav_API.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Flight()
         {
-            return View();
+            return RedirectToAction("GetFlight", "Flight");
+        }
+
+        public IActionResult Seats()
+        {
+            return RedirectToAction("GetSeats", "Seats");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

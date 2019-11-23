@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using FlightNav_API.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FlightNav_API.Models.Repositories;
 
 namespace FlightNav_API
 {
@@ -43,6 +44,9 @@ namespace FlightNav_API
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddScoped<ISeatRepository, SeatRepository>();
+            services.AddScoped<IFlightRepository, FlightRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
