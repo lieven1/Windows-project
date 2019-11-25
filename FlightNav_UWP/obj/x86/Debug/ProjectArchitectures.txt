@@ -1,1 +1,0 @@
-C:\Users\Admin\Source\Repos\Windows-project3\FlightNav_UWP\FlightNav_UWP.csproj;x86
