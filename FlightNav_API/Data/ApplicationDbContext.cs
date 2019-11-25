@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using FlightNav_API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,17 +53,43 @@ namespace FlightNav_API.Data
             );
 
             modelBuilder.Entity<Seat>().HasData(
-                new 
+                new
                 {
                     seatnumber = 1,
                     passengerId = 1
                 },
-                new 
+                new
                 {
                     seatnumber = 2,
                     passengerId = 2
                 }
             );
+
+            Task.Run(async () => { await AddUsersAndRoles(); }).Wait();
+        }
+        private async Task AddUsersAndRoles()
+        {
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this), null, null, null, null);
+            var role = new IdentityRole { Name = "Staff" };
+            if (!roleManager.Roles.Any())
+                await roleManager.CreateAsync(role);
+
+            var userManager = new UserManager<IdentityUser>(new UserStore<IdentityUser>(this), null, null, null, null, null, null, null, null);
+            var passwordHash = new PasswordHasher<IdentityUser>();
+            if (!Users.Any())
+            {
+                var user = new IdentityUser
+                {
+                    UserName = "admin",
+                    Email = "admin@admin.com",
+
+                };
+                user.PasswordHash = passwordHash.HashPassword(user, "12345");
+                await userManager.CreateAsync(user);
+                //Users.Add(user);
+                await userManager.AddToRoleAsync(user, "Staff");
+            }
         }
     }
 }
+
