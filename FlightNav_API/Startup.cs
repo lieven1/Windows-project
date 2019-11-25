@@ -14,6 +14,8 @@ using FlightNav_API.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FlightNav_API.Models.Repositories;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace FlightNav_API
 {
@@ -41,16 +43,24 @@ namespace FlightNav_API
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("user", policy => policy.RequireClaim(ClaimTypes.Role, "user"));
+                options.AddPolicy("staff", policy => policy.RequireClaim(ClaimTypes.Role, "staff"));
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddScoped<DataInitializer>();
             services.AddScoped<ISeatRepository, SeatRepository>();
             services.AddScoped<IFlightRepository, FlightRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataInitializer initializer)
         {
             if (env.IsDevelopment())
             {
@@ -76,6 +86,8 @@ namespace FlightNav_API
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            initializer.Initialize().Wait();
         }
     }
 }
